@@ -14,7 +14,45 @@ use Illuminate\Support\Facades\Log;
 class SuggestionSongController extends Controller
 {
     
-    
+    /**
+     * @OA\Post(
+     *     path="/suggestion-songs",
+     *     summary="Criar nova sugestão de música",
+     *     tags={"Sugestões de Músicas"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"link"},
+     *             @OA\Property(property="link", type="string", example="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Sugestão criada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Música sugerida com sucesso"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Nome da Música"),
+     *                 @OA\Property(property="image", type="string", example="https://exemplo.com/imagem.jpg"),
+     *                 @OA\Property(property="viewCount", type="integer", example=1000000),
+     *                 @OA\Property(property="link", type="string", example="https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
+     *                 @OA\Property(property="status", type="string", example="pending")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Erro de validação"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno do servidor"
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         try {
@@ -31,7 +69,6 @@ class SuggestionSongController extends Controller
 
             // Decodifica o JSON response para array
             $infoVideoArray = json_decode($infoVideo->getContent(), true);
-
             if ($infoVideoArray['success']) {
                 $suggestionSong = SuggestionSong::create(
                     [
@@ -47,10 +84,37 @@ class SuggestionSongController extends Controller
                 return response()->json(['message' => 'Erro ao obter informações da música, tente novamente mais tarde', 'error' => $infoVideoArray['error']], 500);
             }
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error storing suggestion song', 'error' => $e->getMessage()], 500);
+            return response()->json(['message' => 'Erro ao armazenar sugestão de música', 'error' => $e->getMessage()], 500);
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/suggestion-songs",
+     *     summary="Listar todas as sugestões de músicas",
+     *     tags={"Sugestões de Músicas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de sugestões de músicas",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Nome da Música"),
+     *                 @OA\Property(property="image", type="string", example="https://exemplo.com/imagem.jpg"),
+     *                 @OA\Property(property="viewCount", type="integer", example=1000000),
+     *                 @OA\Property(property="link", type="string", example="https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
+     *                 @OA\Property(property="status", type="string", example="pending")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno do servidor"
+     *     )
+     * )
+     */
     public function getAllSuggestionSongs()
     {
         try {
@@ -61,10 +125,54 @@ class SuggestionSongController extends Controller
         }
     }
     
-    public function approveSuggestionSong(Request $request, $id)
+    /**
+     * @OA\Put(
+     *     path="/suggestion-songs/approve",
+     *     summary="Aprovar sugestão de música",
+     *     tags={"Sugestões de Músicas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sugestão aprovada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Suggestion song approved successfully"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Nome da Música"),
+     *                 @OA\Property(property="artist", type="string", example="Nome do Artista"),
+     *                 @OA\Property(property="album", type="string", example="Nome do Álbum"),
+     *                 @OA\Property(property="link", type="string", example="https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Sugestão não encontrada"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno do servidor"
+     *     )
+     * )
+     */
+    public function approveSuggestionSong(Request $request)
     {
         try {
-            $suggestionSong = SuggestionSong::find($id);
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|integer',
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+            $suggestionSong = SuggestionSong::find($request->id);
             if (!$suggestionSong) {
                 return response()->json(['message' => 'Suggestion song not found'], 404);
             }
@@ -79,10 +187,45 @@ class SuggestionSongController extends Controller
         }
     }
 
-    public function rejectSuggestionSong(Request $request, $id)
+    /**
+     * @OA\Put(
+     *     path="/suggestion-songs/reject",
+     *     summary="Rejeitar sugestão de música",
+     *     tags={"Sugestões de Músicas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="id", type="integer", example=1)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sugestão rejeitada com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Suggestion song rejected successfully")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Sugestão não encontrada"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro interno do servidor"
+     *     )
+     * )
+     */
+    public function rejectSuggestionSong(Request $request)
     {
         try {
-            $suggestionSong = SuggestionSong::find($id);
+            $validator = Validator::make($request->all(), [
+                'id' => 'required|integer',
+            ]);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 400);
+            }
+            $suggestionSong = SuggestionSong::find($request->id);
             if (!$suggestionSong) {
                 return response()->json(['message' => 'Suggestion song not found'], 404);
             }
@@ -99,7 +242,7 @@ class SuggestionSongController extends Controller
         try {
             $url = $link;
             $result = $this->getVideoInfo($url);
-
+            Log::info("TESTE",[$result]);
             return response()->json($result);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error scraping video', 'error' => $e->getMessage()], 500);
@@ -108,7 +251,7 @@ class SuggestionSongController extends Controller
 
     private function getVideoInfo($url)
     {
-        $response = Http::get($url);
+        $response = Http::withoutVerifying()->get($url);
         $html = $response->body();
 
         $dom = new DOMDocument();
@@ -136,7 +279,7 @@ class SuggestionSongController extends Controller
                 }
             }
         }
-
+        Log::info("TESTE",[$viewCount, $title, $thumbnail]);
         return [
             'success' => true,
             'data' => [

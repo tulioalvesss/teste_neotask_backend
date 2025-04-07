@@ -1,0 +1,655 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API de Músicas Tião Carreiro e Pardinho",
+        "description": "API para gerenciamento de músicas e sugestões",
+        "contact": {
+            "email": "tulioalves17@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8000/api",
+            "description": "Servidor Principal"
+        }
+    ],
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Autenticar usuário",
+                "operationId": "8cb7742ae98d0990acb2907c4e00bf24",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "usuario@exemplo.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "senha123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login bem sucedido",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "access_token": {
+                                            "type": "string"
+                                        },
+                                        "token_type": {
+                                            "type": "string",
+                                            "example": "bearer"
+                                        },
+                                        "expires_in": {
+                                            "type": "integer",
+                                            "example": 3600
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "user"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciais inválidas"
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Autenticação"
+                ],
+                "summary": "Registrar novo usuário",
+                "operationId": "ed42f392010c301892e640067141676e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "João Silva"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "joao@exemplo.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "senha123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado com sucesso"
+                    },
+                    "400": {
+                        "description": "Erro de validação"
+                    }
+                }
+            }
+        },
+        "/songs": {
+            "get": {
+                "tags": [
+                    "Músicas"
+                ],
+                "summary": "Listar todas as músicas",
+                "operationId": "ffeeacb25d362c6dc99cdeec7b5670e6",
+                "responses": {
+                    "200": {
+                        "description": "Lista de músicas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "title": {
+                                                "type": "string",
+                                                "example": "Nome da Música"
+                                            },
+                                            "artist": {
+                                                "type": "string",
+                                                "example": "Nome do Artista"
+                                            },
+                                            "album": {
+                                                "type": "string",
+                                                "example": "Nome do Álbum"
+                                            },
+                                            "link": {
+                                                "type": "string",
+                                                "example": "https://exemplo.com/musica"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Músicas"
+                ],
+                "summary": "Atualizar uma música",
+                "operationId": "1859ce39a6eabc1a4bbfe8ff1820ef42",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Novo Nome da Música"
+                                    },
+                                    "artist": {
+                                        "type": "string",
+                                        "example": "Novo Nome do Artista"
+                                    },
+                                    "album": {
+                                        "type": "string",
+                                        "example": "Novo Nome do Álbum"
+                                    },
+                                    "link": {
+                                        "type": "string",
+                                        "example": "https://exemplo.com/nova-musica"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Música atualizada com sucesso"
+                    },
+                    "404": {
+                        "description": "Música não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Músicas"
+                ],
+                "summary": "Criar nova música",
+                "operationId": "a28be4ced5c180620b197c9144c70376",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "artist",
+                                    "album",
+                                    "link"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Nome da Música"
+                                    },
+                                    "artist": {
+                                        "type": "string",
+                                        "example": "Nome do Artista"
+                                    },
+                                    "album": {
+                                        "type": "string",
+                                        "example": "Nome do Álbum"
+                                    },
+                                    "link": {
+                                        "type": "string",
+                                        "example": "https://exemplo.com/musica"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Música criada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Song created successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Nome da Música"
+                                                },
+                                                "artist": {
+                                                    "type": "string",
+                                                    "example": "Nome do Artista"
+                                                },
+                                                "album": {
+                                                    "type": "string",
+                                                    "example": "Nome do Álbum"
+                                                },
+                                                "link": {
+                                                    "type": "string",
+                                                    "example": "https://exemplo.com/musica"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Músicas"
+                ],
+                "summary": "Excluir uma música",
+                "operationId": "0bf79638c915c4714858316f93c93f55",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Música excluída com sucesso"
+                    },
+                    "404": {
+                        "description": "Música não encontrada"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/suggestion-songs": {
+            "get": {
+                "tags": [
+                    "Sugestões de Músicas"
+                ],
+                "summary": "Listar todas as sugestões de músicas",
+                "operationId": "0fd63fecdbcd6898212e2e53cd2f1595",
+                "responses": {
+                    "200": {
+                        "description": "Lista de sugestões de músicas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "title": {
+                                                "type": "string",
+                                                "example": "Nome da Música"
+                                            },
+                                            "image": {
+                                                "type": "string",
+                                                "example": "https://exemplo.com/imagem.jpg"
+                                            },
+                                            "viewCount": {
+                                                "type": "integer",
+                                                "example": 1000000
+                                            },
+                                            "link": {
+                                                "type": "string",
+                                                "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "pending"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Sugestões de Músicas"
+                ],
+                "summary": "Criar nova sugestão de música",
+                "operationId": "4d01100181df83d895f943625144c04d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "link"
+                                ],
+                                "properties": {
+                                    "link": {
+                                        "type": "string",
+                                        "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Sugestão criada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Música sugerida com sucesso"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Nome da Música"
+                                                },
+                                                "image": {
+                                                    "type": "string",
+                                                    "example": "https://exemplo.com/imagem.jpg"
+                                                },
+                                                "viewCount": {
+                                                    "type": "integer",
+                                                    "example": 1000000
+                                                },
+                                                "link": {
+                                                    "type": "string",
+                                                    "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação"
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                }
+            }
+        },
+        "/suggestion-songs/approve": {
+            "put": {
+                "tags": [
+                    "Sugestões de Músicas"
+                ],
+                "summary": "Aprovar sugestão de música",
+                "operationId": "3ea2b2ff55aa6b430f4f4eee5433d961",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sugestão aprovada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Suggestion song approved successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Nome da Música"
+                                                },
+                                                "artist": {
+                                                    "type": "string",
+                                                    "example": "Nome do Artista"
+                                                },
+                                                "album": {
+                                                    "type": "string",
+                                                    "example": "Nome do Álbum"
+                                                },
+                                                "link": {
+                                                    "type": "string",
+                                                    "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sugestão não encontrada"
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/suggestion-songs/reject": {
+            "put": {
+                "tags": [
+                    "Sugestões de Músicas"
+                ],
+                "summary": "Rejeitar sugestão de música",
+                "operationId": "93107e2a649048fc28462797bbe148c9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Sugestão rejeitada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Suggestion song rejected successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Sugestão não encontrada"
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Autenticação",
+            "description": "Autenticação"
+        },
+        {
+            "name": "Músicas",
+            "description": "Músicas"
+        },
+        {
+            "name": "Sugestões de Músicas",
+            "description": "Sugestões de Músicas"
+        }
+    ]
+}

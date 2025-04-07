@@ -30,11 +30,11 @@ Route::group(['prefix' => 'v1', 'middleware' => JwtAuthenticate::class], functio
     Route::post('suggestion-songs', [SuggestionSongController::class, 'store']);
     // Routes para o admin
     Route::group(['middleware' => CheckAdmin::class, 'prefix' => 'admin'], function () {
-        Route::post('suggestion-songs/{id}/approve', [SuggestionSongController::class, 'approveSuggestionSong']);
-        Route::post('suggestion-songs/{id}/reject', [SuggestionSongController::class, 'rejectSuggestionSong']);
+        Route::post('suggestion-songs/approve', [SuggestionSongController::class, 'approveSuggestionSong']);
+        Route::post('suggestion-songs/reject', [SuggestionSongController::class, 'rejectSuggestionSong']);
         Route::get('suggestion-songs', [SuggestionSongController::class, 'getAllSuggestionSongs']);
-        Route::put('songs/{id}', [SongController::class, 'update']);
-        Route::delete('songs/{id}', [SongController::class, 'delete']);
+        Route::put('songs', [SongController::class, 'update']);
+        Route::delete('songs', [SongController::class, 'delete']);
     });
 });
 

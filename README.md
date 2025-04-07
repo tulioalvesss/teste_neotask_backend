@@ -2,7 +2,15 @@
 
 API REST desenvolvida em Laravel para gerenciamento de tarefas.
 
+## Documentação da API
+- Documentação feita usando Swagger, para acessar basta iniciar a aplicação e acessar 
+``` http://127.0.0.1:8000/api/documentation/ ```
+
 ## 📋 Pré-requisitos
+
+- Para facilitar os teste, ao realizar a migration é criado um user admin com:
+- - email: admin@admin.com
+- - password: 123123123
 
 ### Para Ambiente Local
 - PHP >= 8.2
