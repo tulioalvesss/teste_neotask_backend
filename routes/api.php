@@ -33,6 +33,7 @@ Route::group(['prefix' => 'v1', 'middleware' => JwtAuthenticate::class], functio
         Route::post('suggestion-songs/approve', [SuggestionSongController::class, 'approveSuggestionSong']);
         Route::post('suggestion-songs/reject', [SuggestionSongController::class, 'rejectSuggestionSong']);
         Route::get('suggestion-songs', [SuggestionSongController::class, 'getAllSuggestionSongs']);
+        Route::post('insert-song', [SongController::class, 'insertSong']);
         Route::put('songs', [SongController::class, 'update']);
         Route::delete('songs', [SongController::class, 'delete']);
     });

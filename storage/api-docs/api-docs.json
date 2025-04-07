@@ -131,62 +131,13 @@
                 }
             }
         },
-        "/songs": {
-            "get": {
-                "tags": [
-                    "Músicas"
-                ],
-                "summary": "Listar todas as músicas",
-                "operationId": "ffeeacb25d362c6dc99cdeec7b5670e6",
-                "responses": {
-                    "200": {
-                        "description": "Lista de músicas",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "title": {
-                                                "type": "string",
-                                                "example": "Nome da Música"
-                                            },
-                                            "artist": {
-                                                "type": "string",
-                                                "example": "Nome do Artista"
-                                            },
-                                            "album": {
-                                                "type": "string",
-                                                "example": "Nome do Álbum"
-                                            },
-                                            "link": {
-                                                "type": "string",
-                                                "example": "https://exemplo.com/musica"
-                                            }
-                                        },
-                                        "type": "object"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
+        "v1/admin/songs": {
             "put": {
                 "tags": [
                     "Músicas"
                 ],
                 "summary": "Atualizar uma música",
-                "operationId": "1859ce39a6eabc1a4bbfe8ff1820ef42",
+                "operationId": "891311bd91217c9df8fca4ae83ae7656",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -234,7 +185,7 @@
                     "Músicas"
                 ],
                 "summary": "Criar nova música",
-                "operationId": "a28be4ced5c180620b197c9144c70376",
+                "operationId": "e5ec473c3b0a410933e35934edd728f7",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -326,7 +277,7 @@
                     "Músicas"
                 ],
                 "summary": "Excluir uma música",
-                "operationId": "0bf79638c915c4714858316f93c93f55",
+                "operationId": "607e7eca8140274ce3b63f3b943421d7",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -358,16 +309,125 @@
                 ]
             }
         },
-        "/suggestion-songs": {
+        "v1/admin/insert-song": {
+            "post": {
+                "tags": [
+                    "Músicas"
+                ],
+                "summary": "Inserir uma nova música através de um link",
+                "operationId": "3e7e8307ee7be942f43e4ac87a2c3404",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "link": {
+                                        "type": "string",
+                                        "example": "https://www.youtube.com/watch?v=exemplo"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Música inserida com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Música inserida com sucesso"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "title": {
+                                                    "type": "string",
+                                                    "example": "Título do Vídeo"
+                                                },
+                                                "image": {
+                                                    "type": "string",
+                                                    "example": "https://exemplo.com/thumbnail.jpg"
+                                                },
+                                                "viewCount": {
+                                                    "type": "integer",
+                                                    "example": 1000000
+                                                },
+                                                "link": {
+                                                    "type": "string",
+                                                    "example": "https://www.youtube.com/watch?v=exemplo"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Erro de validação",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao validar os dados, verifique se todos os campos estão preenchidos corretamente."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao processar a requisição",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao obter informações da música, tente novamente mais tarde"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Detalhes do erro"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/songs": {
             "get": {
                 "tags": [
-                    "Sugestões de Músicas"
+                    "Músicas"
                 ],
-                "summary": "Listar todas as sugestões de músicas",
-                "operationId": "0fd63fecdbcd6898212e2e53cd2f1595",
+                "summary": "Listar todas as músicas",
+                "operationId": "ffeeacb25d362c6dc99cdeec7b5670e6",
                 "responses": {
                     "200": {
-                        "description": "Lista de sugestões de músicas",
+                        "description": "Lista de músicas",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -382,21 +442,17 @@
                                                 "type": "string",
                                                 "example": "Nome da Música"
                                             },
-                                            "image": {
+                                            "artist": {
                                                 "type": "string",
-                                                "example": "https://exemplo.com/imagem.jpg"
+                                                "example": "Nome do Artista"
                                             },
-                                            "viewCount": {
-                                                "type": "integer",
-                                                "example": 1000000
+                                            "album": {
+                                                "type": "string",
+                                                "example": "Nome do Álbum"
                                             },
                                             "link": {
                                                 "type": "string",
-                                                "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                                            },
-                                            "status": {
-                                                "type": "string",
-                                                "example": "pending"
+                                                "example": "https://exemplo.com/musica"
                                             }
                                         },
                                         "type": "object"
@@ -404,9 +460,6 @@
                                 }
                             }
                         }
-                    },
-                    "500": {
-                        "description": "Erro interno do servidor"
                     }
                 },
                 "security": [
@@ -414,13 +467,15 @@
                         "bearerAuth": []
                     }
                 ]
-            },
+            }
+        },
+        "v1/suggestion-songs": {
             "post": {
                 "tags": [
                     "Sugestões de Músicas"
                 ],
                 "summary": "Criar nova sugestão de música",
-                "operationId": "4d01100181df83d895f943625144c04d",
+                "operationId": "ee729e91b84311db5941ae92b0a26fec",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -495,13 +550,71 @@
                 }
             }
         },
-        "/suggestion-songs/approve": {
+        "v1/admin/suggestion-songs": {
+            "get": {
+                "tags": [
+                    "Sugestões de Músicas"
+                ],
+                "summary": "Listar todas as sugestões de músicas",
+                "operationId": "a79612a43f5de9990ce3a98f019f2287",
+                "responses": {
+                    "200": {
+                        "description": "Lista de sugestões de músicas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "title": {
+                                                "type": "string",
+                                                "example": "Nome da Música"
+                                            },
+                                            "image": {
+                                                "type": "string",
+                                                "example": "https://exemplo.com/imagem.jpg"
+                                            },
+                                            "viewCount": {
+                                                "type": "integer",
+                                                "example": 1000000
+                                            },
+                                            "link": {
+                                                "type": "string",
+                                                "example": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "example": "pending"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro interno do servidor"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "v1/admin/suggestion-songs/approve": {
             "put": {
                 "tags": [
                     "Sugestões de Músicas"
                 ],
                 "summary": "Aprovar sugestão de música",
-                "operationId": "3ea2b2ff55aa6b430f4f4eee5433d961",
+                "operationId": "7cdd41f94df5f0929c6dc2da94160304",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -574,13 +687,13 @@
                 ]
             }
         },
-        "/suggestion-songs/reject": {
+        "v1/admin/suggestion-songs/reject": {
             "put": {
                 "tags": [
                     "Sugestões de Músicas"
                 ],
                 "summary": "Rejeitar sugestão de música",
-                "operationId": "93107e2a649048fc28462797bbe148c9",
+                "operationId": "c2f85e66c69be711c65a2e336368bac8",
                 "requestBody": {
                     "required": true,
                     "content": {

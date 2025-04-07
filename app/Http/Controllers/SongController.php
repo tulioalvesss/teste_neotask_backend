@@ -5,12 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Song;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+use DOMDocument;
+use DOMXPath;
 
 class SongController extends Controller
 {
     /**
      * @OA\Post(
-     *     path="/songs",
+     *     path="v1/admin/songs",
      *     summary="Criar nova música",
      *     tags={"Músicas"},
      *     security={{"bearerAuth":{}}},
@@ -67,6 +71,81 @@ class SongController extends Controller
             return response()->json(['message' => 'Error creating song', 'error' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * @OA\Post(
+     *     path="v1/admin/insert-song",
+     *     summary="Inserir uma nova música através de um link",
+     *     tags={"Músicas"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="link", type="string", example="https://www.youtube.com/watch?v=exemplo")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Música inserida com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Música inserida com sucesso"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Título do Vídeo"),
+     *                 @OA\Property(property="image", type="string", example="https://exemplo.com/thumbnail.jpg"),
+     *                 @OA\Property(property="viewCount", type="integer", example=1000000),
+     *                 @OA\Property(property="link", type="string", example="https://www.youtube.com/watch?v=exemplo")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Erro de validação",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao validar os dados, verifique se todos os campos estão preenchidos corretamente.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro ao processar a requisição",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Erro ao obter informações da música, tente novamente mais tarde"),
+     *             @OA\Property(property="error", type="string", example="Detalhes do erro")
+     *         )
+     *     )
+     * )
+     */
+    public function insertSong(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'link' => 'required|string|max:255'
+        ]);
+
+
+        if ($validator->fails()) {
+            return response()->json("Erro ao validar os dados, verifique se todos os campos estão preenchidos corretamente. O dado enviado foi: " . json_encode($request->all()), 400);
+        }
+        $link = $request->input('link');
+        $infoVideo = $this->scrapeVideo($link);
+
+        // Decodifica o JSON response para array
+        $infoVideoArray = json_decode($infoVideo->getContent(), true);
+        if ($infoVideoArray['success']) {
+            $song = Song::create(
+                [
+                    'title' => $infoVideoArray['data']['title'],
+                    'image' => $infoVideoArray['data']['image'],
+                    'viewCount' => $infoVideoArray['data']['viewCount'],
+                    'link' => $link
+                ]
+            );
+            return response()->json(['message' => 'Música inserida com sucesso', 'data' => $song], 201);
+        } else {
+            return response()->json(['message' => 'Erro ao obter informações da música, tente novamente mais tarde', 'error' => $infoVideoArray['error']], 500);
+        }
+    }
     
     /**
      * @OA\Get(
@@ -103,7 +182,7 @@ class SongController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/songs",
+     *     path="v1/admin/songs",
      *     summary="Atualizar uma música",
      *     tags={"Músicas"},
      *     security={{"bearerAuth":{}}},
@@ -148,7 +227,7 @@ class SongController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/songs",
+     *     path="v1/admin/songs",
      *     summary="Excluir uma música",
      *     tags={"Músicas"},
      *     security={{"bearerAuth":{}}},
@@ -186,6 +265,59 @@ class SongController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error deleting song', 'error' => $e->getMessage()], 500);
         }
+    }
+
+    private function scrapeVideo($link)
+    {
+        try {
+            $url = $link;
+            $result = $this->getVideoInfo($url);
+            Log::info("TESTE",[$result]);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error scraping video', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    private function getVideoInfo($url)
+    {
+        $response = Http::withoutVerifying()->get($url);
+        $html = $response->body();
+
+        $dom = new DOMDocument();
+        @$dom->loadHTML($html);
+        $xpath = new DOMXPath($dom);
+
+        // Extrair título (meta tags)
+        $title = $xpath->evaluate('string(//meta[@property="og:title"]/@content)');
+        $title = utf8_decode($title);
+
+        // Extrair thumbnail
+        $thumbnail = $xpath->evaluate('string(//meta[@property="og:image"]/@content)');
+
+        // Tentar extrair visualizações (mais complexo)
+        $scripts = $xpath->query('//script');
+        $viewCount = 'Não disponível';
+
+        foreach ($scripts as $script) {
+            $scriptContent = $script->textContent;
+            if (strpos($scriptContent, 'viewCount') !== false) {
+                preg_match('/"viewCount":\s*"(\d+)"/', $scriptContent, $matches);
+                if (isset($matches[1])) {
+                    $viewCount = $matches[1];
+                    break;
+                }
+            }
+        }
+        Log::info("TESTE",[$viewCount, $title, $thumbnail]);
+        return [
+            'success' => true,
+            'data' => [
+                'title' => $title,
+                'image' => $thumbnail,
+                'viewCount' => $viewCount ? intval($viewCount) : 'Não disponível'
+            ]
+        ];
     }
     
 }

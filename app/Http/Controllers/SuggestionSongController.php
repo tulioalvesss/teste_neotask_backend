@@ -16,7 +16,7 @@ class SuggestionSongController extends Controller
     
     /**
      * @OA\Post(
-     *     path="/suggestion-songs",
+     *     path="v1/suggestion-songs",
      *     summary="Criar nova sugestão de música",
      *     tags={"Sugestões de Músicas"},
      *     @OA\RequestBody(
@@ -90,7 +90,7 @@ class SuggestionSongController extends Controller
 
     /**
      * @OA\Get(
-     *     path="/suggestion-songs",
+     *     path="v1/admin/suggestion-songs",
      *     summary="Listar todas as sugestões de músicas",
      *     tags={"Sugestões de Músicas"},
      *     security={{"bearerAuth":{}}},
@@ -127,7 +127,7 @@ class SuggestionSongController extends Controller
     
     /**
      * @OA\Put(
-     *     path="/suggestion-songs/approve",
+     *     path="v1/admin/suggestion-songs/approve",
      *     summary="Aprovar sugestão de música",
      *     tags={"Sugestões de Músicas"},
      *     security={{"bearerAuth":{}}},
@@ -189,7 +189,7 @@ class SuggestionSongController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/suggestion-songs/reject",
+     *     path="v1/admin/suggestion-songs/reject",
      *     summary="Rejeitar sugestão de música",
      *     tags={"Sugestões de Músicas"},
      *     security={{"bearerAuth":{}}},
